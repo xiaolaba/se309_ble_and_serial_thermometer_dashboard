@@ -2,83 +2,82 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- 針對 iPhone 11 及行動裝置優化 viewport 設定，禁止不當縮放並適配安全區域 -->
+    <!-- 針對 iPhone 11 及行動裝置優化 viewport 設定，禁止捲動與縮放 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>SE-309 4-Channel Thermometer Monitor</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col items-center p-3 sm:p-6 pb-10">
+<body class="bg-slate-900 text-slate-100 font-sans h-screen w-screen overflow-hidden flex flex-col items-center justify-between p-2">
 
-    <!-- 主容器：針對 iPhone 11 (828x1792 邏輯寬度約 414px) 優化邊距與內距 -->
-    <div class="w-full max-w-5xl bg-slate-800 rounded-2xl shadow-xl p-4 sm:p-6 border border-slate-700">
+    <!-- 主容器：滿版填滿畫面，不產生捲動軸 -->
+    <div class="w-full max-w-5xl h-full flex flex-col justify-between bg-slate-800 rounded-xl shadow-xl p-3 border border-slate-700">
         
-        <!-- Header 區塊：在窄螢幕上改為完全垂直堆疊，按鈕寬度展開以便手指點擊 -->
-        <header class="flex flex-col pb-4 sm:pb-6 border-b border-slate-700 gap-3">
-            <div class="flex justify-between items-start">
+        <!-- Header 區塊：精簡高度 -->
+        <header class="flex flex-col pb-2 border-b border-slate-700 gap-2 flex-shrink-0">
+            <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-emerald-400">SE-309 Dashboard</h1>
-                    <p class="text-xs sm:text-sm text-slate-400">BLE & Web Serial Monitor</p>
+                    <h1 class="text-base sm:text-xl font-bold tracking-tight text-emerald-400 leading-tight">SE-309 Dashboard</h1>
+                    <p class="text-[10px] sm:text-xs text-slate-400">BLE & Web Serial Monitor</p>
                 </div>
-                <!-- 電池狀態按鈕移至右上角精簡顯示 -->
-                <button id="batteryStatusBtn" class="text-xs sm:text-sm text-white font-medium px-3 py-1.5 rounded-lg transition shadow-md flex items-center gap-1.5 bg-emerald-600">
+                <button id="batteryStatusBtn" class="text-xs text-white font-medium px-2.5 py-1 rounded-lg transition shadow-md bg-emerald-600">
                     Battery OK
                 </button>
             </div>
 
-            <!-- 連線按鈕群組：滿版排列，觸控區域加大 (min-height 44px 適合手指操作) -->
-            <div class="grid grid-cols-2 gap-2 mt-1">
+            <!-- 連線按鈕群組 -->
+            <div class="grid grid-cols-2 gap-1.5">
                 <!-- BLE Buttons -->
-                <button id="connectBleBtn" class="bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-medium py-3 px-3 rounded-xl transition shadow-lg flex items-center justify-center gap-2 text-sm">
+                <button id="connectBleBtn" class="bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-medium py-2 px-2 rounded-lg transition shadow flex items-center justify-center gap-1.5 text-xs">
                     Connect BLE
                 </button>
-                <button id="disconnectBleBtn" class="hidden bg-rose-600 hover:bg-rose-500 text-white font-medium py-3 px-3 rounded-xl transition shadow-lg flex items-center justify-center text-sm">
+                <button id="disconnectBleBtn" class="hidden bg-rose-600 hover:bg-rose-500 text-white font-medium py-2 px-2 rounded-lg transition shadow flex items-center justify-center text-xs">
                     Stop BLE
                 </button>
 
                 <!-- Serial Buttons -->
-                <button id="connectSerialBtn" class="bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white font-medium py-3 px-3 rounded-xl transition shadow-lg flex items-center justify-center gap-2 text-sm">
+                <button id="connectSerialBtn" class="bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white font-medium py-2 px-2 rounded-lg transition shadow flex items-center justify-center gap-1.5 text-xs">
                     Connect Serial
                 </button>
-                <button id="disconnectSerialBtn" class="hidden bg-rose-600 hover:bg-rose-500 text-white font-medium py-3 px-3 rounded-xl transition shadow-lg flex items-center justify-center text-sm">
+                <button id="disconnectSerialBtn" class="hidden bg-rose-600 hover:bg-rose-500 text-white font-medium py-2 px-2 rounded-lg transition shadow flex items-center justify-center text-xs">
                     Stop Serial
                 </button>
             </div>
         </header>
 
-        <!-- Channel Readout Cards: 2x2 網格排版，完美適配 iPhone 11 寬度 -->
-        <div class="grid grid-cols-2 gap-3 my-4">
-            <div id="cardT1" class="bg-slate-900/60 border border-slate-700 p-3 sm:p-4 rounded-xl text-center transition">
-                <span id="labelT1" class="text-sm sm:text-xl uppercase tracking-wider text-amber-400 font-bold">T1</span>
-                <div id="valT1" class="text-2xl sm:text-3xl font-black mt-1">----</div>
+        <!-- Channel Readout Cards: 2x2 網格，緊湊排版 -->
+        <div class="grid grid-cols-2 gap-2 my-2 flex-shrink-0">
+            <div id="cardT1" class="bg-slate-900/60 border border-slate-700 p-2 rounded-lg text-center transition">
+                <span id="labelT1" class="text-xs uppercase tracking-wider text-amber-400 font-bold">T1</span>
+                <div id="valT1" class="text-xl sm:text-2xl font-black mt-0.5">----</div>
             </div>
-            <div id="cardT2" class="bg-slate-900/60 border border-slate-700 p-3 sm:p-4 rounded-xl text-center transition">
-                <span id="labelT2" class="text-sm sm:text-xl uppercase tracking-wider text-rose-400 font-bold">T2</span>
-                <div id="valT2" class="text-2xl sm:text-3xl font-black mt-1">----</div>
+            <div id="cardT2" class="bg-slate-900/60 border border-slate-700 p-2 rounded-lg text-center transition">
+                <span id="labelT2" class="text-xs uppercase tracking-wider text-rose-400 font-bold">T2</span>
+                <div id="valT2" class="text-xl sm:text-2xl font-black mt-0.5">----</div>
             </div>
-            <div id="cardT3" class="bg-slate-900/60 border border-slate-700 p-3 sm:p-4 rounded-xl text-center transition">
-                <span id="labelT3" class="text-sm sm:text-xl uppercase tracking-wider text-emerald-400 font-bold">T3</span>
-                <div id="valT3" class="text-2xl sm:text-3xl font-black mt-1">----</div>
+            <div id="cardT3" class="bg-slate-900/60 border border-slate-700 p-2 rounded-lg text-center transition">
+                <span id="labelT3" class="text-xs uppercase tracking-wider text-emerald-400 font-bold">T3</span>
+                <div id="valT3" class="text-xl sm:text-2xl font-black mt-0.5">----</div>
             </div>
-            <div id="cardT4" class="bg-slate-900/60 border border-slate-700 p-3 sm:p-4 rounded-xl text-center transition">
-                <span id="labelT4" class="text-sm sm:text-xl uppercase tracking-wider text-cyan-400 font-bold">T4</span>
-                <div id="valT4" class="text-2xl sm:text-3xl font-black mt-1">----</div>
+            <div id="cardT4" class="bg-slate-900/60 border border-slate-700 p-2 rounded-lg text-center transition">
+                <span id="labelT4" class="text-xs uppercase tracking-wider text-cyan-400 font-bold">T4</span>
+                <div id="valT4" class="text-xl sm:text-2xl font-black mt-0.5">----</div>
             </div>
         </div>
 
-        <!-- Chart Canvas Container: 調整高度在 iPhone 11 直向螢幕上不需過度捲動 -->
-        <div class="relative w-full h-[240px] sm:h-[320px] bg-slate-900/40 p-2 sm:p-4 rounded-xl border border-slate-700">
+        <!-- Chart Canvas Container: 依剩餘空間彈性縮放，確保不超出畫面 -->
+        <div class="relative w-full flex-grow bg-slate-900/40 p-1.5 rounded-lg border border-slate-700 my-1 min-h-[140px]">
             <canvas id="tempChart"></canvas>
         </div>
 
-        <!-- Hex Packet Log Panel -->
-        <div class="mt-4">
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Raw Packet Log</span>
-                <button id="clearLogBtn" class="text-xs text-slate-400 hover:text-slate-200 underline py-1 px-2">Clear Log</button>
+        <!-- Hex Packet Log Panel: 精簡高度 -->
+        <div class="mt-1 flex-shrink-0">
+            <div class="flex justify-between items-center mb-1">
+                <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Raw Packet Log</span>
+                <button id="clearLogBtn" class="text-[10px] text-slate-400 hover:text-slate-200 underline py-0.5 px-1">Clear</button>
             </div>
-            <div id="logBox" class="p-3 bg-slate-950 rounded-lg text-[11px] sm:text-xs font-mono text-emerald-400 h-36 sm:h-44 overflow-y-auto border border-slate-800 leading-relaxed">
+            <div id="logBox" class="p-2 bg-slate-950 rounded-lg text-[10px] font-mono text-emerald-400 h-20 overflow-y-auto border border-slate-800 leading-tight">
                 [System] Ready. Choose connection type...<br>
             </div>
         </div>
@@ -118,18 +117,13 @@
         const valT3 = document.getElementById('valT3');
         const valT4 = document.getElementById('valT4');
 
-        const cardT1 = document.getElementById('cardT1');
-        const cardT2 = document.getElementById('cardT2');
-        const cardT3 = document.getElementById('cardT3');
-        const cardT4 = document.getElementById('cardT4');
-
         function log(msg, isHex = false) {
             const time = new Date().toLocaleTimeString();
             const colorClass = isHex ? 'text-amber-300 font-mono' : 'text-slate-400';
             const cleanMsg = String(msg).replace(/\\n/g, '\n');
             const formattedMsg = cleanMsg.replace(/\n/g, '<br>&nbsp;&nbsp;');
             
-            logBox.innerHTML += `<div class="py-0.5"><span class="text-slate-600">[${time}]</span> <span class="${colorClass}">${formattedMsg}</span></div>`;
+            logBox.innerHTML += `<div class="py-0.2"><span class="text-slate-600">[${time}]</span> <span class="${colorClass}">${formattedMsg}</span></div>`;
             logBox.scrollTop = logBox.scrollHeight;
         }
 
@@ -149,10 +143,10 @@
                 data: {
                     labels: [],
                     datasets: [
-                        { label: 'T1', borderColor: '#fbbf24', data: [], borderWidth: 2, pointRadius: 0, tension: 0.1 },
-                        { label: 'T2', borderColor: '#fb7185', data: [], borderWidth: 2, pointRadius: 0, tension: 0.1 },
-                        { label: 'T3', borderColor: '#34d399', data: [], borderWidth: 2, pointRadius: 0, tension: 0.1 },
-                        { label: 'T4', borderColor: '#22d3ee', data: [], borderWidth: 2, pointRadius: 0, tension: 0.1 }
+                        { label: 'T1', borderColor: '#fbbf24', data: [], borderWidth: 1.5, pointRadius: 0, tension: 0.1 },
+                        { label: 'T2', borderColor: '#fb7185', data: [], borderWidth: 1.5, pointRadius: 0, tension: 0.1 },
+                        { label: 'T3', borderColor: '#34d399', data: [], borderWidth: 1.5, pointRadius: 0, tension: 0.1 },
+                        { label: 'T4', borderColor: '#22d3ee', data: [], borderWidth: 1.5, pointRadius: 0, tension: 0.1 }
                     ]
                 },
                 options: {
@@ -160,10 +154,10 @@
                     maintainAspectRatio: false,
                     animation: false,
                     scales: {
-                        x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
-                        y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8', font: { size: 9 }, maxTicksLimit: 6 } },
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8', font: { size: 9 } } }
                     },
-                    plugins: { legend: { labels: { color: '#f1f5f9', boxWidth: 12, font: { size: 11 } } } }
+                    plugins: { legend: { labels: { color: '#f1f5f9', boxWidth: 10, font: { size: 10 } } } }
                 }
             });
         }
@@ -253,7 +247,7 @@
         // ==================== WEB SERIAL LOGIC ====================
         connectSerialBtn.addEventListener('click', async () => {
             if (!('serial' in navigator)) {
-                alert('Web Serial is not supported in this browser (iOS Web Serial requires external companion apps or specific web wrappers; standard Safari does not support Web Serial directly).');
+                alert('Web Serial is not supported in this browser.');
                 return;
             }
 
@@ -357,7 +351,7 @@
                 const lowBatteryFlag = (packet[1] & 0x40) !== 0;
                 
                 batteryStatusBtn.innerText = lowBatteryFlag ? 'Low Batt' : 'Battery OK';
-                batteryStatusBtn.className = "text-xs sm:text-sm text-white font-medium px-3 py-1.5 rounded-lg transition shadow-md flex items-center gap-1.5 " + 
+                batteryStatusBtn.className = "text-xs text-white font-medium px-2.5 py-1 rounded-lg transition shadow-md " + 
                     (lowBatteryFlag ? 'bg-rose-600' : 'bg-emerald-600');
 
                 const rawT1 = (packet[7] << 8) + packet[8];
@@ -385,7 +379,7 @@
 
                 if (tempChart) {
                     const timeLabel = new Date().toLocaleTimeString();
-                    if (tempChart.data.labels.length > 50) {
+                    if (tempChart.data.labels.length > 30) {
                         tempChart.data.labels.shift();
                         tempChart.data.datasets.forEach(dataset => dataset.data.shift());
                     }
